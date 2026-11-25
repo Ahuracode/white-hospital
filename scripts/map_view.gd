@@ -6,10 +6,16 @@ extends Node2D
 var solved: Dictionary = {}
 var _font: Font
 var _exit_body: StaticBody2D
+var _tex_cache: Dictionary = {}
 
 
 func _ready() -> void:
 	_font = load("res://assets/fonts/Vazirmatn-Regular.ttf")
+	for item in WhiteHospitalMap.furniture():
+		if item.has("sprite"):
+			var path := String(item["sprite"])
+			if not _tex_cache.has(path):
+				_tex_cache[path] = load(path)
 	_build_collisions()
 	queue_redraw()
 
@@ -79,8 +85,11 @@ func _draw() -> void:
 			Vector2((r.position.x + r.size.x / 2.0) * t, (r.position.y + r.size.y - 1.0) * t),
 			13, Color(0, 0, 0, 0.35)
 		)
-	# وسایل شماتیک.
+	# وسایل: اسپرایت واقعی یا شماتیک (design.md §۸).
 	for item in WhiteHospitalMap.furniture():
+		if item.has("sprite"):
+			_draw_sprite_item(item)
+			continue
 		var r: Rect2i = item["rect"]
 		var px := Rect2(r.position * t, Vector2(r.size.x * t, r.size.y * t))
 		# سایه‌ی نرم ۲۵٪، یک پیکسل پایین‌تر.
@@ -110,6 +119,24 @@ func _draw() -> void:
 		draw_circle(pos + Vector2(0, -14), 10, col)
 		draw_arc(pos + Vector2(0, -14), 10, 0, TAU, 24, Color(0, 0, 0, 0.4), 1.5)
 		_draw_centered_text("✓" if done else "!", pos + Vector2(0, -14), 13, Color.WHITE)
+
+
+func _draw_sprite_item(item: Dictionary) -> void:
+	var tex: Texture2D = _tex_cache.get(String(item["sprite"]))
+	if tex == null:
+		return
+	var dest: Rect2
+	if item.has("size"):
+		# پراپ key-outشده: در جعبه‌ی size جا می‌شود، با حفظ نسبت تصویر.
+		var box: Vector2 = item["size"]
+		var sc := minf(box.x / tex.get_width(), box.y / tex.get_height())
+		dest = Rect2(item["pos"], Vector2(tex.get_width() * sc, tex.get_height() * sc))
+	else:
+		# PNG زیپ: اندازه‌ی واقعی اسپرایت از گوشه‌ی بالا-چپ تایل.
+		dest = Rect2(item["pos"], Vector2(tex.get_width(), tex.get_height()))
+	# سایه‌ی نرم ۲۵٪: خود اسپرایت با رنگ مشکی، یک پیکسل پایین‌تر.
+	draw_texture_rect(tex, Rect2(dest.position + Vector2(0, 1), dest.size), false, Color(0, 0, 0, 0.25))
+	draw_texture_rect(tex, dest, false)
 
 
 func _draw_hull() -> void:

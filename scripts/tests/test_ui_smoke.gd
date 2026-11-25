@@ -15,6 +15,7 @@ func _init() -> void:
 	await process_frame
 
 	_check("main: صحنه ساخته شد", main != null)
+	_check("main: اسپرایت بازیکن (جراح) ست شده است", main.player._sprite != null and main.player._sprite.texture != null)
 	_check("main: شمارنده‌ی کلید اول «۰ از ۶» است", main._key_label.text.contains("۰ از ۶"))
 	_check("main: پیام آغازین دیده می‌شود", main._intro.visible)
 

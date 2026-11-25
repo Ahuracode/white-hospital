@@ -75,6 +75,32 @@ func _init() -> void:
 	_check("fa_num: ۳ می‌شود «۳»", Logic.fa_num(3) == "۳")
 	_check("fa_num: ۶ می‌شود «۶»", Logic.fa_num(6) == "۶")
 
+	# --- اسپرایت‌های واقعی ست شده‌اند (نه شماتیک خالی) ---
+	var player_tex_dir := "res://assets/sprites/player/"
+	for dir in ["down", "left", "right", "up"]:
+		_check("sprite: فریم idle جراح (%s) لود می‌شود" % dir, load(player_tex_dir + "surgeon_idle_%s.png" % dir) != null)
+		_check("sprite: فریم walk جراح (%s) لود می‌شود" % dir, load(player_tex_dir + "surgeon_walk_%s.png" % dir) != null)
+	var puzzle_sprites := {
+		"lab": "res://assets/sprites/lab/lab_large_table.png",
+		"surgery": "res://assets/sprites/operation/operation_accessories_table_full.png",
+		"radiology": "res://assets/sprites/operation/operation_ct_scanner.png",
+		"pharmacy": "res://assets/sprites/lab/lab_medium_table.png",
+		"icu": "res://assets/sprites/room/room_ecg_screen.png",
+		"maternity": "res://assets/sprites/maternity/maternity_bed.png",
+	}
+	for puzzle_id in puzzle_sprites:
+		var tex = load(puzzle_sprites[puzzle_id])
+		_check("sprite: اسپرایت نقطه‌ی پازل %s لود می‌شود" % puzzle_id, tex != null and tex.get_width() > 0)
+	var sprite_items := 0
+	var missing_sprites: Array[String] = []
+	for item in WhiteHospitalMap.furniture():
+		if item.has("sprite"):
+			sprite_items += 1
+			if load(String(item["sprite"])) == null:
+				missing_sprites.append(String(item["sprite"]))
+	_check("sprite: همه‌ی اسپرایت‌های furniture لود می‌شوند (%d مورد)" % sprite_items, sprite_items > 100 and missing_sprites.is_empty())
+	_check("sprite: شیت‌های AtlasTexture لود می‌شوند", load("res://assets/sprites/sheets/spritesheet_hospital_01.tres") != null and load("res://assets/sprites/sheets/spritesheet_hospital_lab.tres") != null)
+
 	print("----")
 	print("WHITE HOSPITAL TESTS: %d passed, %d failed" % [_passed, _failed])
 	for f in _failures:
