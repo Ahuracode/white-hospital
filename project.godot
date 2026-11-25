@@ -20,3 +20,8 @@ window/stretch/aspect="keep"
 [rendering]
 
 renderer/rendering_method="gl_compatibility"
+
+[gui]
+
+theme/default_font="res://assets/fonts/Vazirmatn-Regular.ttf"
+theme/default_font_size=18
